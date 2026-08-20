@@ -1,7 +1,34 @@
 {
-  "name": "@coteam/coteam",
-  "description": "分布式协作团队预设集合：小组长模式(team-leader) + 小组成员模式(team-member)。用 ./install.sh 安装进 dsh 用户预设根。",
-  "version": "0.2.0",
+  "name": "@blueriverlhr/dsh-coteam",
+  "description": "Distributed collaboration team agent presets for the dsh web GUI: team-leader (小组长模式) + team-member (小组成员模式). Installed as a Cordis bundle plugin whose host half syncs the bundled presets into ~/.dsh/.agent-presets on startup; install.sh remains as a zero-npm fallback.",
+  "version": "0.3.0",
   "private": true,
-  "license": "GPL-3.0"
+  "license": "GPL-3.0",
+  "type": "commonjs",
+  "main": "src/index.js",
+  "exports": {
+    ".": "./src/index.js",
+    "./package.json": "./package.json",
+    "./presets/*": "./presets/*"
+  },
+  "files": [
+    "src",
+    "presets",
+    "cordis.patch.yml",
+    "install.sh",
+    "README.md",
+    "LICENSE",
+    "!src/*.test.js"
+  ],
+  "scripts": {
+    "test": "node --test src/*.test.js"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  },
+  "engines": {
+    "node": ">=18"
+  }
 }

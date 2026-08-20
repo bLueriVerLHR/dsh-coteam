@@ -1,0 +1,12 @@
+# dsh-coteam bundle patch: inserts the host plugin row into the web profile
+# roster. Applied as a profile bundle layer (the `dsh.bundle.patch` manifest
+# field) over dsh-base; activate with
+#   dsh plugin --profile web add @blueriverlhr/dsh-coteam   (published)
+#   dsh plugin --profile web add link:<abs path>/dsh-coteam  (local dev)
+#
+# The row is a bare plugin by package name: the node half (exports ".") runs
+# in the host process and syncs the bundled agent presets (team-leader /
+# team-member) into ~/.dsh/.agent-presets on startup. No browser half.
+- insert:
+    - id: coteam
+      name: '@blueriverlhr/dsh-coteam'
