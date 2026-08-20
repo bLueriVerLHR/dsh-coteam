@@ -11,18 +11,52 @@
 #
 # 发现逻辑每次 list() 都重读磁盘：改完仓库里的预设后重跑本脚本即可生效，
 # 无需重启 dsh web（设置页面刷新一次即可看到最新名单）。
+#
+# 用法：
+#   bash install.sh            # 安装（默认动作，幂等：先删后拷，结果一致）
+#   bash install.sh uninstall  # 卸载（只删除本包安装的目录，不影响其他预设）
+#   bash install.sh -h         # 显示本帮助
 set -euo pipefail
 
 src="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 dest="${DSH_HOME:-$HOME/.dsh}/.agent-presets"
 
-mkdir -p "$dest"
-for preset in team-leader team-member; do
-  if [ ! -f "$src/$preset/agent.cordis.yml" ]; then
-    echo "missing $src/$preset/agent.cordis.yml" >&2
+usage() {
+  sed -n '2,18p' "$0"  # 打印脚本头部的说明（含用法）
+}
+
+do_install() {
+  mkdir -p "$dest"
+  for preset in team-leader team-member; do
+    if [ ! -f "$src/$preset/agent.cordis.yml" ]; then
+      echo "missing $src/$preset/agent.cordis.yml" >&2
+      exit 1
+    fi
+    # 幂等：先删后拷，重复安装得到相同结果。
+    rm -rf "$dest/$preset"
+    cp -R "$src/$preset" "$dest/$preset"
+    echo "installed: $dest/$preset"
+  done
+}
+
+do_uninstall() {
+  for preset in team-leader team-member; do
+    if [ -d "$dest/$preset" ]; then
+      rm -rf "$dest/$preset"
+      echo "uninstalled: $dest/$preset"
+    else
+      echo "not installed: $dest/$preset"
+    fi
+  done
+}
+
+case "${1:-install}" in
+  install) do_install ;;
+  uninstall) do_uninstall ;;
+  -h|--help|help) usage ;;
+  *)
+    echo "unknown command: ${1:-}" >&2
+    usage >&2
     exit 1
-  fi
-  rm -rf "$dest/$preset"
-  cp -R "$src/$preset" "$dest/$preset"
-  echo "installed: $dest/$preset"
-done
+    ;;
+esac

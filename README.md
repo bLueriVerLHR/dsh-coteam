@@ -66,19 +66,29 @@
 
 ---
 
+> 本文档中的命令都在**本仓库根目录**（克隆下来的工作区）里执行，路径均为仓库内
+> 相对路径；安装目标是 dsh 的用户预设根 `${DSH_HOME:-~/.dsh}/.agent-presets`，
+> 请勿硬编码任何用户主目录路径。
+
 ## 安装（install.sh）
 
 ```bash
-bash /home/archie/forge/coteam/install.sh
+bash install.sh
 ```
 
 脚本把 `team-leader/` 与 `team-member/` 两个**真实目录**复制到
-`~/.dsh/.agent-presets/`。装完**无需重启** `dsh web`：`agentPresets.list()` 每次
-调用都重读磁盘，刷新一次设置页面（或新建会话）即可看到「小组长模式」和
-「小组成员模式」。
+`${DSH_HOME:-~/.dsh}/.agent-presets/`。装完**无需重启** `dsh web`：
+`agentPresets.list()` 每次调用都重读磁盘，刷新一次设置页面（或新建会话）即可看到
+「小组长模式」和「小组成员模式」。
 
 > 仓库目录是源，用户预设根里的两份是副本。改完 `agent.cordis.yml` 后再跑一次
-> `install.sh` 即可覆盖生效（幂等：先删后拷）。
+> `install.sh` 即可覆盖生效（幂等：先删后拷，重复安装结果一致）。
+>
+> `install.sh` 支持两个子命令：
+> - `bash install.sh`（或 `bash install.sh install`）：安装，幂等，可重复执行。
+> - `bash install.sh uninstall`：卸载，只删除本包安装的两个预设目录，不影响
+>   用户预设根里其他预设。
+> - `bash install.sh -h`：查看脚本用法。
 
 **为什么不是 dsh plugin bundle？** rc.7 的 dsh 启动器（`apps/cli` 的
 `composeProfile`）会在所有 patch 层**之后**追加一个 overlay，把 `agent-presets`
@@ -98,8 +108,8 @@ bash /home/archie/forge/coteam/install.sh
 discovered presets: 6
   - standard [system] @ .../config/agent-presets/standard/agent.cordis.yml
   ...
-  - team-leader [user] @ /home/archie/.dsh/.agent-presets/team-leader/agent.cordis.yml name=小组长模式
-  - team-member [user] @ /home/archie/.dsh/.agent-presets/team-member/agent.cordis.yml name=小组成员模式
+  - team-leader [user] @ ${DSH_HOME:-~/.dsh}/.agent-presets/team-leader/agent.cordis.yml name=小组长模式
+  - team-member [user] @ ${DSH_HOME:-~/.dsh}/.agent-presets/team-member/agent.cordis.yml name=小组成员模式
 team-leader: MOUNTED OK
 team-member: MOUNTED OK
 ```
@@ -113,7 +123,7 @@ GUI 侧：刷新设置页 → 「Agent 预设」分区出现两张 user 卡片�
 ## 卸载
 
 ```bash
-rm -rf ~/.dsh/.agent-presets/team-leader ~/.dsh/.agent-presets/team-member
+bash install.sh uninstall
 ```
 
 刷新后设置页里两个模式消失。运行中的会话在进程退出前仍沿用已挂载的组合；冷恢复时
@@ -140,7 +150,7 @@ rm -rf ~/.dsh/.agent-presets/team-leader ~/.dsh/.agent-presets/team-member
 ```
 coteam/
 ├── package.json               # 包元数据（非 bundle）
-├── install.sh                 # 复制预设进 dsh 用户预设根（真实目录）
+├── install.sh                 # 安装/卸载预设（bash install.sh [install|uninstall]）
 ├── README.md                  # 本文档
 ├── team-leader/               # 「小组长模式」预设
 │   ├── agent.cordis.yml       # 组合：全套工具 + 协调工具 + 成员人设注入
@@ -257,15 +267,16 @@ if (rows.has('agent-presets')) {
 启动器在所有 patch 层（bundle → profile 层 → home 层 → `--patch`）**之后**追加这个
 overlay：先展开已有的 `config`，再把 `roots` **整体覆写**成 `[部署自带根]`。
 于是无论 bundle / home / `--patch` 哪一层给 `agent-presets.roots` 写什么，最终生效
-的只有部署自带根（`includeUserRoot` 再追加 `~/.dsh/.agent-presets`）。
+的只有部署自带根（`includeUserRoot` 再追加 `${DSH_HOME:-~/.dsh}/.agent-presets`）。
 
 **`--dump-config` 为什么骗人**：dump 走的是 `prepareProfile`（只组合 patch 层），
 **不含**这个 launcher overlay，所以它显示的是 overlay 之前的树——正是这个差异让
 "验证通过但运行时不生效"的坑藏了很久。要验证运行时真相，用 probe，别用 dump。
 
-**结论**：rc.7 上注册预设根的**唯一**生效路径是 `~/.dsh/.agent-presets/`（真实
-目录；`scanRoot` 用 `readdir(withFileTypes)` 只认 `isDirectory()`，符号链接会被
-跳过，所以不能 `ln -s`）。这也是设置页 `agentPreset.copy()` 作者写入的根。
+**结论**：rc.7 上注册预设根的**唯一**生效路径是
+`${DSH_HOME:-~/.dsh}/.agent-presets/`（真实目录；`scanRoot` 用
+`readdir(withFileTypes)` 只认 `isDirectory()`，符号链接会被跳过，所以不能
+`ln -s`）。这也是设置页 `agentPreset.copy()` 作者写入的根。
 
 ### 3. 本次踩过的坑（复用提醒）
 
