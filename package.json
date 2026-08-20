@@ -3,5 +3,5 @@
   "description": "分布式协作团队预设集合：小组长模式(team-leader) + 小组成员模式(team-member)。用 ./install.sh 安装进 dsh 用户预设根。",
   "version": "0.2.0",
   "private": true,
-  "license": "MIT"
+  "license": "GPL-3.0"
 }
