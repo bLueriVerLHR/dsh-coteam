@@ -1,0 +1,3 @@
+- insert:
+    - id: coteam-preset
+      name: "@blueriverlhr/dsh-coteam-preset"
