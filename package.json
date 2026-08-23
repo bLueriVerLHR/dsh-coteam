@@ -1,27 +1,23 @@
 {
   "name": "@blueriverlhr/dsh-coteam",
-  "description": "Distributed collaboration team agent presets for the dsh web GUI: team-leader (小组长模式) + team-member (小组成员模式). Installed as a Cordis bundle plugin whose host half syncs the bundled presets into ~/.dsh/.agent-presets on startup; install.sh remains as a zero-npm fallback.",
-  "version": "0.3.0",
+  "description": "dsh-coteam monorepo meta package: distributed collaboration team agent presets for the dsh web GUI. Aggregates the preset subpackage (team-leader 小组长模式 + team-member 小组成员模式) and the skills subpackage (grill-me and more). Install this meta bundle to get everything; each subpackage is also installable on its own.",
+  "version": "0.4.0",
   "private": true,
   "license": "GPL-3.0",
-  "type": "commonjs",
-  "main": "src/index.js",
-  "exports": {
-    ".": "./src/index.js",
-    "./package.json": "./package.json",
-    "./presets/*": "./presets/*"
+  "type": "module",
+  "dependencies": {
+    "@blueriverlhr/dsh-coteam-preset": "file:./packages/preset",
+    "@blueriverlhr/dsh-coteam-skills": "file:./packages/skills"
   },
   "files": [
-    "src",
-    "presets",
     "cordis.patch.yml",
-    "install.sh",
+    "packages/",
     "README.md",
-    "LICENSE",
-    "!src/*.test.js"
+    "LICENSE"
   ],
   "scripts": {
-    "test": "node --test src/*.test.js"
+    "build": "node build.mjs",
+    "test": "node build.mjs && node tests/run-all.mjs"
   },
   "dsh": {
     "bundle": {

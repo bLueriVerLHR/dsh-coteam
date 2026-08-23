@@ -3,3 +3,7 @@ node_modules/
 .DS_Store
 *.log
 _update-notifier-last-checked
+# git worktree scratch dirs (.wt/<letter> per member)
+.wt/
+# local DSH test home
+.dsh-home/
