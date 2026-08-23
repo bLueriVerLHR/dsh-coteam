@@ -7,8 +7,8 @@ const assert = require('node:assert/strict')
 const fs = require('node:fs')
 const os = require('node:os')
 const path = require('node:path')
-const { syncOnePreset, syncPresetTrees } = require('./sync.js')
-const { validateAgentCordis } = require('./schema.js')
+const { syncOnePreset, syncPresetTrees } = require('../src/sync.js')
+const { validateAgentCordis } = require('../src/schema.js')
 
 /** Minimal structurally valid agent.cordis.yml used by the sync fixtures. */
 const VALID_AGENT_YAML = "- id: persona\n  name: '@deepseek-ai/dsh-persona'\n"

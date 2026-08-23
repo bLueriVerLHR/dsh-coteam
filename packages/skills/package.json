@@ -1,0 +1,33 @@
+{
+  "name": "@blueriverlhr/dsh-coteam-skills",
+  "description": "dsh-coteam skills subpackage: a collection of agent skills for the dsh web GUI (SKILL.md based). Ships grill-me and more; content-first, preset wiring to be added later.",
+  "version": "0.4.0",
+  "private": true,
+  "license": "GPL-3.0",
+  "type": "commonjs",
+  "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./cordis.patch.yml": "./cordis.patch.yml",
+    "./skills/*": "./skills/*",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib",
+    "skills",
+    "cordis.patch.yml",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "node ../../scripts/build-package.mjs .",
+    "test": "node --test tests/*.test.js"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
