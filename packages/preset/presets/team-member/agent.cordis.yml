@@ -112,7 +112,7 @@
         headChars: 4096
         tailChars: 1024
 
-# ── delegation：成员也可以再委派自己的子 agent（成员之间协作 / 视觉子成员）──
+# ── delegation：成员也可以再委派自己的子 agent（成员之间协作）──
 - id: delegation
   name: cordis:group
   group: true
@@ -129,17 +129,6 @@
         provider: spawn
         toolName: subagent
         backgroundMode: continuable
-
-    - id: tool-subagent-vision
-      name: '@deepseek-ai/dsh-tool-subagent'
-      config:
-        provider: spawn
-        toolName: subagent_vision
-        backgroundMode: continuable
-        agentOptions:
-          provider: opencode-go
-          model: kimi-k3
-          maxTokens: 131072
 
     - id: tool-subagent-fork
       name: '@deepseek-ai/dsh-tool-subagent'

@@ -17,8 +17,8 @@ dsh-coteam 被重构为 monorepo（元包 + 子包）后，本包负责原先 `p
 
 ## 如何安装
 
-- **独立（bundle）安装**：本包自身就是 bundle 插件。`npm run build` 会用元包的 `scripts/compose-patch.mjs` 把 `cordis.patch.js`（唯一事实源）与 skills 子包的 patch 源聚合，生成 `cordis.patch.yml`；随后可 `dsh plugin --profile web add link:<abs path>/dsh-coteam-preset`（本地开发）或发布后按包名安装。
-- **随元包安装**：根元包 `@blueriverlhr/dsh-coteam` 聚合了本包与 skills 子包，用户安装元包即一并获得全部能力（由元包成员负责组装）。
+- **独立（bundle）安装**：本包自身就是 bundle 插件。`npm run build` 会用元包的 `scripts/compose-patch.mjs` 把 `cordis.patch.js`（唯一事实源）聚合，生成 `cordis.patch.yml`；随后 `dsh plugin --profile web add file:<abs path>/packages/preset`（本地安装；分发不发布 npm，见根 README）。
+- **随元包安装**：根元包 `@blueriverlhr/dsh-coteam` 通过 `file:./packages/preset` 依赖聚合本包，用户 `dsh plugin --profile web add file:<元包绝对路径>` 即安装本包。
 
 ## 目录结构
 

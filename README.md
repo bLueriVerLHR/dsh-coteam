@@ -1,23 +1,21 @@
 # dsh-coteam —— 分布式协作团队 monorepo 元包
 
 为 DeepSeek Harness 提供分布式协作相关的 agent 能力，以 **Cordis bundle 插件**分发。
-本仓库是一个 **monorepo 元包（Facade）**：根目录本身无业务代码，只是把两个可独立
-安装的**子包**聚合进一个 bundle 层——装元包 = 一次拿到全部功能，也可以按需只装其中
-一个子包。
+本仓库是一个 **monorepo 元包（Facade）**：根目录本身无业务代码，只是把可独立
+安装的 **preset 子包**聚合进一个 bundle 层——装元包 = 一次拿到全部功能，也可以按需只装它。
 
 | 子包 | npm 名 | 内容 |
 | --- | --- | --- |
 | **preset** | `@blueriverlhr/dsh-coteam-preset` | 两个协作模式 agent preset：**小组长模式（team-leader）** + **小组成员模式（team-member）** |
-| **skills** | `@blueriverlhr/dsh-coteam-skills` | agent 技能集合（SKILL.md 形态）：**grill-me**（追问/激将）等 |
 
 ---
 
 ## 目录结构
 
 ```
-dsh-coteam/                        # 元包（Facade）：聚合 preset + skills，无自身代码
+dsh-coteam/                        # 元包（Facade）：聚合 preset，无自身代码
 ├── package.json                   # @blueriverlhr/dsh-coteam；dependencies: file:./packages/*
-├── cordis.patch.yml               # GENERATED：聚合两子包的插件行（勿手改——npm run build 生成）
+├── cordis.patch.yml               # GENERATED：聚合 preset 子包的插件行（勿手改——npm run build 生成）
 ├── build.mjs                      # 根构建：遍历 packages/* 建 lib/ + 重生成全部 cordis.patch.yml
 ├── scripts/
 │   ├── build-package.mjs          # 每包子包构建：src/*.js 原样拷到 lib/（CJS/ESM 保持原样，无编译器）
@@ -33,12 +31,6 @@ dsh-coteam/                        # 元包（Facade）：聚合 preset + skills
 │   │   ├── src/                   # host 半身（CJS，无构建）：index / sync / schema / dsh-home
 │   │   ├── presets/               # team-leader/ + team-member/ 预设
 │   │   └── tests/                 # 子包单测（node --test）
-│   └── skills/                    # @blueriverlhr/dsh-coteam-skills
-│       ├── package.json           # CJS；main: lib/index.js
-│       ├── cordis.patch.js        # patch 源（module.exports = [...]）—— 唯一事实源
-│       ├── src/host.js            # 内容优先：接线 host（→ lib/index.js）
-│       ├── skills/                # SKILL.md 技能内容（grill-me 等）
-│       └── tests/
 ├── README.md                      # 本文档
 └── LICENSE                        # GPL-3.0
 ```
@@ -56,7 +48,7 @@ dsh-coteam/                        # 元包（Facade）：聚合 preset + skills
 | **小组长模式** | `team-leader` | `packages/preset/presets/team-leader/` | 团队主 agent：协调分派、管总 TODO、**不能直接改文件** |
 | **小组成员模式** | `team-member` | `packages/preset/presets/team-member/` | 成员：完成分派任务，全功能、不加约束 |
 
-模式的具体说明（人设、硬守卫、成员注入、视觉成员等）见
+模式的具体说明（人设、硬守卫、成员注入等）见
 `packages/preset/presets/team-leader/agent.cordis.yml` 与
 `packages/preset/presets/team-member/agent.cordis.yml` 内的注释。
 
@@ -64,35 +56,36 @@ dsh-coteam/                        # 元包（Facade）：聚合 preset + skills
 
 ## 安装
 
+> 分发方式：本仓库以 **GitHub 源码 + `file:` 本地安装** 分发（不发布 npm；两个
+> package 均标记 `private: true`）。安装用 `file:` 指向本仓库绝对路径——pnpm 会拷贝
+> 包并正确解析根包的 `file:./packages/*` 子包依赖（已实测端到端可用）。
+>
+> ⚠️ 请**不要**用 `link:` 或发布 npm：`link:` 只符号链接根包，子包依赖不会物化，
+> 插件行无法解析、不会挂载；发布到 npm 时 `file:` 依赖同样会让消费者安装失败。
+
 ### 方式一：整包装元包（推荐）
 
 ```sh
-# 发布版
-dsh plugin --profile web add @blueriverlhr/dsh-coteam
-
-# 本地开发
-dsh plugin --profile web add link:<本仓库绝对路径>
+dsh plugin --profile web add file:/本仓库绝对路径
+# 例如
+dsh plugin --profile web add file:/home/me/dsh-coteam
 ```
 
 装完**完整重启 `dsh web`**：preset 子包 host 半身在启动时把
 `presets/team-leader` 与 `presets/team-member` 同步进
 `${DSH_HOME:-~/.dsh}/.agent-presets`，然后新建会话的预设选择器即可选「小组长模式」
-和「小组成员模式」；skills 子包的技能随 skill 机制生效。
+和「小组成员模式」。
 
 ### 方式二：按需只装一个子包
 
 ```sh
 # 只要协作预设
-dsh plugin --profile web add @blueriverlhr/dsh-coteam-preset
-
-# 只要技能
-dsh plugin --profile web add @blueriverlhr/dsh-coteam-skills
+dsh plugin --profile web add file:/本仓库绝对路径/packages/preset
 ```
 
-**升级**：改完内容（子包 `presets/` 或 `skills/` 下）后发新版本号，
-`dsh plugin --profile web update @blueriverlhr/dsh-coteam`（或重新 `add`），下次启动
-时插件自动刷新——预设同步是内容感知的：只重写字节有变化的文件，绝不触碰用户自建的
-其他预设。
+**升级**：改完内容（`presets/` 下）后重新 `add`（或
+`dsh plugin --profile web remove` 后重新 `add`），下次启动时插件自动刷新——预设同步
+是内容感知的：只重写字节有变化的文件，绝不触碰用户自建的其他预设。
 
 ---
 
@@ -109,22 +102,11 @@ preset 子包的 host 半身（`packages/preset/src/`，CJS）在 `dsh web` 启�
 
 ---
 
-## skills 子包：内容优先的技能集合
-
-skills 子包采用 **内容优先（content-first）** 的形态：技能本体是 `skills/` 目录下的
-SKILL.md 文件（grill-me 等），host 半身（`src/host.js` → `lib/index.js`）只负责接线——
-把技能目录注册进 dsh 的技能扫描路径。当前以内容为主，preset 层面的接线（如把技能挂到
-某个 agent 预设上）后续再补。子包独立 patch 行：
-`- id: coteam-skills / name: '@blueriverlhr/dsh-coteam-skills'`。
-
----
-
 ## 为什么用 bundle 插件
 
-参考 `dsh-liangshen`（`packages/dsh-liangshen`）的成熟做法：rc.7 的 dsh 启动器
-（`apps/cli` 的 `composeProfile`）会在所有 patch 层之后追加一个 overlay，把
-`agent-presets.roots` 无条件覆写为 `[部署自带根]`——**bundle patch 因此无法注册新的
-预设根**（`dsh --dump-config` 显示的 roots 是 overlay 之前的树，会骗人）。
+rc.7 的 dsh 启动器（`apps/cli` 的 `composeProfile`）会在所有 patch 层之后追加一个
+overlay，把 `agent-presets.roots` 无条件覆写为 `[部署自带根]`——**bundle patch 因此
+无法注册新的预设根**（`dsh --dump-config` 显示的 roots 是 overlay 之前的树，会骗人）。
 
 但 `dsh-agent-presets` 的 `includeUserRoot`（默认 true）始终把
 `${DSH_HOME:-~/.dsh}/.agent-presets`（`trust: "user"`）追加进扫描列表。所以 bundle
@@ -168,11 +150,12 @@ rm -rf "${DSH_HOME:-$HOME/.dsh}/.agent-presets/team-leader" "${DSH_HOME:-$HOME/.
 
 ## 自定义
 
-- **换视觉模型**：编辑 `packages/preset/presets/*/agent.cordis.yml` 中
-  `tool-subagent-vision` 的 `agentOptions`（provider / model / maxTokens）。
+- **视觉任务**：本包**不硬编码视觉模型**——没有专职视觉成员工具。需要读图/视觉任务时，
+  组长会先向用户确认当前模型是否支持图片输入（见 `team-leader/agent.cordis.yml` 人设
+  第 5 条），再决定如何分派；视觉能力由当前默认路由决定。
 - **调成员人设**：`packages/preset/presets/team-member/agent.cordis.yml` 的 persona，
-  以及 `packages/preset/presets/team-leader/agent.cordis.yml` 中 `tool-subagent` /
-  `tool-subagent-vision` 的 `persona`（两份保持一致即可）。
+  以及 `packages/preset/presets/team-leader/agent.cordis.yml` 中 `tool-subagent` 的
+  `persona`（两份保持一致即可）。
 - **改守卫名单**：`packages/preset/presets/team-leader/leader-guard.js` 顶部的
   `MUTATION_TOOLS`。
 - **退役旧预设 id**：preset 子包 `config.retire`（数组），把包不再提供的预设 id 从用户
@@ -199,9 +182,9 @@ npm test        # build + 全部测试：组合守卫（tests/composition.mjs）
   子包）**字节级一致**——手改生成的 patch 文件（或改了源没重跑 build）会直接红。
 - **子包各自也可单独构建/测试**：`cd packages/preset && npm run build && npm test`
   （build 脚本复用元包的 `scripts/build-package.mjs`）。
-- **patch 聚合顺序**：`FEATURES = ['preset', 'skills']`（`scripts/compose-patch.mjs`），
+- **patch 聚合顺序**：`FEATURES = ['preset']`（`scripts/compose-patch.mjs`），
   元包 patch 的行序即此顺序。
-- **CommonJS 兼容**：两子包的 `cordis.patch.js` 都是 `module.exports = [...]`；
+- **CommonJS 兼容**：preset 子包的 `cordis.patch.js` 是 `module.exports = [...]`；
   `compose-patch.mjs` 用 `import()` 动态加载，CJS 的 `module.exports` 会成为 namespace
   的 `default`，`module.default ?? module` 同时兼容 CJS 与 ESM 源。
 
@@ -324,8 +307,7 @@ overlay：先展开已有的 `config`，再把 `roots` **整体覆写**成 `[部
 `${DSH_HOME:-~/.dsh}/.agent-presets/`（真实目录；`scanRoot` 用
 `readdir(withFileTypes)` 只认 `isDirectory()`，符号链接会被跳过，所以不能
 `ln -s`）。这也是设置页 `agentPreset.copy()` 作者写入的根。**因此 bundle 插件的
-正确姿势不是注册新根，而是往这个用户根同步预设目录**——本仓库与 dsh-liangshen 都
-采用这条路。
+正确姿势不是注册新根，而是往这个用户根同步预设目录**——本仓库采用这条路。
 
 ### 3. 本次踩过的坑（复用提醒）
 

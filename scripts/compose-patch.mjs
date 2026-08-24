@@ -2,10 +2,9 @@
  * Patch composer — the Composition Root of the split.
  *
  * Each feature package owns its patch as plain JS data in `cordis.patch.js`
- * (the row that mounts its host plugin). Both dsh-coteam subpackages are
- * CommonJS (`module.exports = [...]` — the preset package must stay CJS
- * because `leader-guard.js` is `module.exports`). This module aggregates those
- * sources and writes:
+ * (the row that mounts its host plugin). The preset package is CommonJS
+ * (`module.exports = [...]` — it must stay CJS because `leader-guard.js` is
+ * `module.exports`). This module aggregates those sources and writes:
  *
  *   - `packages/<feature>/cordis.patch.yml` — the feature's own standalone
  *     bundle layer (so a feature is installable on its own), and
@@ -26,7 +25,7 @@ const scriptsDir = dirname(fileURLToPath(import.meta.url))
 const root = join(scriptsDir, '..')
 
 /** Feature packages in stable aggregation order. */
-const FEATURES = ['preset', 'skills']
+const FEATURES = ['preset']
 
 /**
  * Import one feature's patch source (default export: the patch data array).

@@ -43,9 +43,8 @@ for (const name of featureNames) {
   check(insertIds.filter((id) => id === expected).length === 1, `元包 patch 恰好挂载一次 ${expected}`)
 }
 
-/* 4. the meta patch carries the two feature rows (structural sanity). */
+/* 4. the meta patch carries the feature row (structural sanity). */
 check(meta.includes('id: coteam-preset'), '根 cordis.patch.yml 含 id: coteam-preset')
-check(meta.includes('id: coteam-skills'), '根 cordis.patch.yml 含 id: coteam-skills')
 
 /* 5. the patch files parse as YAML arrays (structural sanity). */
 for (const name of featureNames) {

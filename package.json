@@ -1,13 +1,20 @@
 {
   "name": "@blueriverlhr/dsh-coteam",
-  "description": "dsh-coteam monorepo meta package: distributed collaboration team agent presets for the dsh web GUI. Aggregates the preset subpackage (team-leader 小组长模式 + team-member 小组成员模式) and the skills subpackage (grill-me and more). Install this meta bundle to get everything; each subpackage is also installable on its own.",
+  "description": "dsh-coteam monorepo meta package: distributed collaboration team agent presets for the dsh web GUI. Aggregates the preset subpackage (team-leader 小组长模式 + team-member 小组成员模式). Install this meta bundle to get everything; the subpackage is also installable on its own.",
   "version": "0.4.0",
   "private": true,
   "license": "GPL-3.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bLueriVerLHR/dsh-coteam.git"
+  },
+  "homepage": "https://github.com/bLueriVerLHR/dsh-coteam",
+  "bugs": {
+    "url": "https://github.com/bLueriVerLHR/dsh-coteam/issues"
+  },
   "type": "module",
   "dependencies": {
-    "@blueriverlhr/dsh-coteam-preset": "file:./packages/preset",
-    "@blueriverlhr/dsh-coteam-skills": "file:./packages/skills"
+    "@blueriverlhr/dsh-coteam-preset": "file:./packages/preset"
   },
   "files": [
     "cordis.patch.yml",

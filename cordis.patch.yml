@@ -5,6 +5,3 @@
 - insert:
     - id: coteam-preset
       name: "@blueriverlhr/dsh-coteam-preset"
-- insert:
-    - id: coteam-skills
-      name: "@blueriverlhr/dsh-coteam-skills"

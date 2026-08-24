@@ -2,7 +2,7 @@
  * Per-package build — the shared Template Method every feature package's
  * `build` script runs, and the root build orchestrates over all packages.
  *
- * dsh-coteam adaptation of the better-webui pipeline:
+ * Pipeline:
  *   1. host files (`src/*.js`) are copied verbatim to `lib/` — no compiler,
  *      so CommonJS stays CommonJS and ESM stays ESM (the preset subpackage is
  *      CJS on purpose: `leader-guard.js` is `module.exports`, and switching
@@ -11,7 +11,8 @@
  *   3. `src/client.bundle.js` (if present) is wrapped into the
  *      `window.__ModuleLoader__.load` factory envelope and emitted as
  *      `lib/client.js`. No dsh-coteam package ships a client half today, but
- *      the branch is kept for parity with better-webui and harmless.
+ *      the branch is kept for parity with the official clientBundle output
+ *      and is harmless.
  *   4. `*.test.js` files are skipped — tests live in `tests/` and never enter
  *      the build output.
  *

@@ -15,7 +15,6 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '..')
 const steps = [
   ['node', ['tests/composition.mjs'], 'composition guard'],
   ['node', ['--test', 'packages/preset/tests/*.test.js'], 'preset subpackage tests'],
-  ['node', ['--test', 'packages/skills/tests/*.test.js'], 'skills subpackage tests'],
 ]
 
 console.log(`running ${steps.length} test steps\n`)
